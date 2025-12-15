@@ -1,0 +1,100 @@
+@page
+@model UsaEpayTester.Pages.AuthModel
+@{
+    ViewData["Title"] = "USAePay Auth Tester";
+}
+
+<h1 class="mb-3">USAePay REST Authentication Tester</h1>
+
+<p>
+    This page demonstrates the USAePay REST authentication method from the docs:
+    <a href="https://help.usaepay.info/api/rest/#authentication">Authentication</a>.
+</p>
+
+<div class="alert alert-warning">
+    <strong>Security note:</strong> Do not paste real production credentials into screenshots or public chats.
+    Treat your API Key and API PIN like passwords.
+</div>
+
+<form method="post" asp-page-handler="Generate" class="row g-3">
+    <div class="col-12">
+        <label class="form-label" for="baseUrl">Base URL</label>
+        <input id="baseUrl" class="form-control" asp-for="BaseUrl" />
+        <div class="form-text">
+            Sandbox: <code>https://sandbox.usaepay.com/api/v2/</code>,
+            Production: <code>https://usaepay.com/api/v2/</code>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="testRelativePath">Test endpoint (relative path)</label>
+        <input id="testRelativePath" class="form-control" asp-for="TestRelativePath" />
+        <div class="form-text">
+            Example: <code>transactions?limit=1</code>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="apiKey">API Key</label>
+        <input id="apiKey" class="form-control" asp-for="ApiKey" autocomplete="off" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="apiPin">API PIN</label>
+        <input id="apiPin" class="form-control" asp-for="ApiPin" type="password" autocomplete="off" />
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="seedOverride">Seed (optional)</label>
+        <input id="seedOverride" class="form-control" asp-for="SeedOverride" autocomplete="off" />
+        <div class="form-text">
+            If left blank, the app generates a random alphanumeric seed for you.
+        </div>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Generate auth header + test request</button>
+    </div>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger mt-4">
+        <strong>Error:</strong> @Model.ErrorMessage
+    </div>
+}
+
+@if (Model.AuthorizationHeader is not null)
+{
+    <hr class="my-4" />
+
+    <h2>Generated values</h2>
+
+    <div class="mb-3">
+        <div class="fw-bold">Seed used</div>
+        <code>@Model.SeedUsed</code>
+    </div>
+
+    <div class="mb-3">
+        <div class="fw-bold">apiHash (s2/seed/sha256(...))</div>
+        <code>@Model.ApiHash</code>
+    </div>
+
+    <div class="mb-3">
+        <div class="fw-bold">Authorization header</div>
+        <pre class="p-2 bg-light border rounded"><code>Authorization: @Model.AuthorizationHeader</code></pre>
+    </div>
+
+    <h2>Test request result</h2>
+
+    <div class="mb-2">
+        <div class="fw-bold">HTTP status</div>
+        <code>@(Model.HttpStatusCode?.ToString() ?? "N/A")</code>
+    </div>
+
+    <div class="mb-3">
+        <div class="fw-bold">Response body</div>
+        <pre class="p-2 bg-light border rounded" style="max-height: 340px; overflow:auto;"><code>@Model.HttpResponseBody</code></pre>
+    </div>
+}
+
