@@ -1,0 +1,146 @@
+@page
+@model UsaEpayTester.Pages.SaleModel
+@{
+    ViewData["Title"] = "Sale";
+}
+
+<h1 class="mb-3">Sale (Credit/Debit Card)</h1>
+
+<p>
+    This page posts a <strong>Sale</strong> transaction to USAePay using the official .NET SDK
+    (<a href="https://help.usaepay.info/api/rest/#net-guide">.NET Guide</a>).
+    The API endpoint is <code>POST /api/v2/transactions</code> with <code>"command": "sale"</code>
+    (<a href="https://help.usaepay.info/api/rest/#sale">Sale docs</a>).
+</p>
+
+<div class="alert alert-warning">
+    <strong>Important:</strong> Use the <strong>sandbox</strong> while learning.
+    Do not use real card numbers unless you fully understand PCI requirements.
+</div>
+
+<form method="post" asp-page-handler="Submit" class="row g-3">
+    <div class="col-12">
+        <h2 class="h5">1) Where to send the request</h2>
+    </div>
+
+    <div class="col-md-8">
+        <label class="form-label" for="baseHost">Base host</label>
+        <input id="baseHost" class="form-control" asp-for="BaseHost" />
+        <div class="form-text">
+            Sandbox: <code>https://sandbox.usaepay.com</code> | Production: <code>https://usaepay.com</code>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label" for="endpointKey">Endpoint key</label>
+        <input id="endpointKey" class="form-control" asp-for="EndpointKey" />
+        <div class="form-text">Usually <code>v2</code> to start.</div>
+    </div>
+
+    <div class="col-12">
+        <h2 class="h5 mt-2">2) Authentication</h2>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="apiKey">API Key</label>
+        <input id="apiKey" class="form-control" asp-for="ApiKey" autocomplete="off" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="apiPin">API PIN</label>
+        <input id="apiPin" class="form-control" asp-for="ApiPin" type="password" autocomplete="off" />
+    </div>
+
+    <div class="col-12">
+        <h2 class="h5 mt-2">3) Sale details</h2>
+        <div class="form-text">
+            Required fields for this transaction type are <code>command</code>, <code>amount</code>, and <code>creditcard</code>.
+            This page always sets <code>command = "sale"</code>.
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label" for="amount">Amount</label>
+        <input id="amount" class="form-control" asp-for="Amount" />
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label" for="invoice">Invoice (optional)</label>
+        <input id="invoice" class="form-control" asp-for="Invoice" />
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label" for="description">Description (optional)</label>
+        <input id="description" class="form-control" asp-for="Description" />
+    </div>
+
+    <div class="col-12">
+        <h2 class="h5 mt-2">4) Card data (creditcard object)</h2>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="cardholder">Cardholder (optional)</label>
+        <input id="cardholder" class="form-control" asp-for="Cardholder" autocomplete="off" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="cardNumber">Card number</label>
+        <input id="cardNumber" class="form-control" asp-for="CardNumber" autocomplete="off" />
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label" for="expirationMmyy">Expiration (MMYY)</label>
+        <input id="expirationMmyy" class="form-control" asp-for="ExpirationMmyy" placeholder="0426" autocomplete="off" />
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label" for="cvc">CVC (optional)</label>
+        <input id="cvc" class="form-control" asp-for="Cvc" autocomplete="off" />
+    </div>
+
+    <div class="col-md-4">
+        <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" asp-for="IgnoreDuplicate" id="ignoreDuplicate">
+            <label class="form-check-label" for="ignoreDuplicate">
+                Ignore duplicates (helpful while testing)
+            </label>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="avsStreet">AVS street (optional)</label>
+        <input id="avsStreet" class="form-control" asp-for="AvsStreet" autocomplete="off" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="avsZip">AVS zip (optional)</label>
+        <input id="avsZip" class="form-control" asp-for="AvsZip" autocomplete="off" />
+    </div>
+
+    <div class="col-12 d-flex gap-2 mt-2">
+        <button type="submit" class="btn btn-primary">Submit Sale</button>
+    </div>
+</form>
+
+<form method="post" asp-page-handler="Clear" class="mt-2">
+    <button type="submit" class="btn btn-outline-secondary btn-sm">Clear output</button>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger mt-4">
+        <strong>Error:</strong> @Model.ErrorMessage
+    </div>
+}
+
+@if (Model.RequestJsonForDisplay is not null || Model.ResponseJson is not null)
+{
+    <hr class="my-4" />
+
+    <h2 class="h5">Request (masked)</h2>
+    <pre class="p-2 bg-light border rounded" style="max-height: 260px; overflow:auto;"><code>@Model.RequestJsonForDisplay</code></pre>
+
+    <h2 class="h5 mt-3">Response</h2>
+    <pre class="p-2 bg-light border rounded" style="max-height: 340px; overflow:auto;"><code>@Model.ResponseJson</code></pre>
+}
+

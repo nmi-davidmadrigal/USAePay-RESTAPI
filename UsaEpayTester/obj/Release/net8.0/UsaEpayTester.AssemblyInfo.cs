@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UsaEpayTester")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2815ddc2f5c0402fd05aa6cc5531b6aa61db5082")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+037b0cfcd078236203190920286d34f7f03de12c")]
 [assembly: System.Reflection.AssemblyProductAttribute("UsaEpayTester")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UsaEpayTester")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
