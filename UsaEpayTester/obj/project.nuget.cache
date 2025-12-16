@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "NmQaX5bWtLI=",
+  "dgSpecHash": "TAlmhMV3O9A=",
   "success": true,
   "projectFilePath": "/workspace/UsaEpayTester/UsaEpayTester.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/home/ubuntu/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
+    "/home/ubuntu/.nuget/packages/usaepay.sdk/2.2.0/usaepay.sdk.2.2.0.nupkg.sha512"
+  ],
   "logs": []
 }

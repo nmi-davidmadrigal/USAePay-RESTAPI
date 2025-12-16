@@ -29,3 +29,7 @@
 /workspace/UsaEpayTester/obj/Release/net8.0/UsaEpayTester.pdb
 /workspace/UsaEpayTester/obj/Release/net8.0/UsaEpayTester.genruntimeconfig.cache
 /workspace/UsaEpayTester/obj/Release/net8.0/ref/UsaEpayTester.dll
+/workspace/UsaEpayTester/bin/Release/net8.0/Newtonsoft.Json.dll
+/workspace/UsaEpayTester/bin/Release/net8.0/sdk.dll
+/workspace/UsaEpayTester/obj/Release/net8.0/UsaEpayTester.csproj.AssemblyReference.cache
+/workspace/UsaEpayTester/obj/Release/net8.0/UsaEpayT.D6A31F02.Up2Date
