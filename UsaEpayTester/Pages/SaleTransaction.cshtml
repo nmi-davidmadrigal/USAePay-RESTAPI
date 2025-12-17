@@ -1,0 +1,99 @@
+@page
+@model UsaEpayTester.Pages.SaleTransactionModel
+@{
+    ViewData["Title"] = "Sale Transaction";
+}
+
+<h1 class="mb-3">Sale Transaction</h1>
+
+<p class="mb-3">
+    This page sends a transaction request to <code>POST /api/v2/transactions</code> using USAePay REST Basic Auth.
+    Paste (or edit) the JSON body and submit to see the raw API response.
+</p>
+
+<div class="alert alert-warning">
+    <strong>Security note:</strong> Don’t use production credentials or real card data in screenshots, logs, or public chats.
+    Use sandbox credentials and test card data only.
+</div>
+
+<form method="post" asp-page-handler="Submit" class="row g-3">
+    <div class="col-12">
+        <label class="form-label" for="baseUrl">Base URL</label>
+        <input id="baseUrl" class="form-control" asp-for="BaseUrl" />
+        <div class="form-text">
+            Sandbox: <code>https://sandbox.usaepay.com/api/v2/</code>,
+            Production: <code>https://usaepay.com/api/v2/</code>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="apiKey">API Key</label>
+        <input id="apiKey" class="form-control" asp-for="ApiKey" autocomplete="off" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label" for="apiPin">API PIN</label>
+        <input id="apiPin" class="form-control" asp-for="ApiPin" type="password" autocomplete="off" />
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="seedOverride">Seed (optional)</label>
+        <input id="seedOverride" class="form-control" asp-for="SeedOverride" autocomplete="off" />
+        <div class="form-text">
+            If left blank, the app generates a random alphanumeric seed for you.
+        </div>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="requestJson">Transaction JSON (request body)</label>
+        <textarea id="requestJson" class="form-control font-monospace" asp-for="RequestJson" rows="14"></textarea>
+        <div class="form-text">
+            This content is sent as-is to <code>transactions</code> (relative to the Base URL) with <code>Content-Type: application/json</code>.
+        </div>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Submit sale transaction</button>
+    </div>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger mt-4">
+        <strong>Error:</strong> @Model.ErrorMessage
+    </div>
+}
+
+@if (Model.HttpStatusCode is not null)
+{
+    <hr class="my-4" />
+
+    <h2>Result</h2>
+
+    <div class="mb-2">
+        <div class="fw-bold">HTTP status</div>
+        <code>@Model.HttpStatusCode</code>
+    </div>
+
+    <details class="mb-3">
+        <summary class="fw-bold">Request + auth details</summary>
+        <div class="mt-2">
+            <div class="fw-bold">Seed used</div>
+            <code>@Model.SeedUsed</code>
+        </div>
+        <div class="mt-2">
+            <div class="fw-bold">apiHash (s2/seed/sha256(...))</div>
+            <code>@Model.ApiHash</code>
+        </div>
+        <div class="mt-2">
+            <div class="fw-bold">Request JSON (sent)</div>
+            <pre class="p-2 bg-light border rounded" style="max-height: 340px; overflow:auto;"><code>@Model.RequestJsonSent</code></pre>
+        </div>
+    </details>
+
+    <div class="mb-3">
+        <div class="fw-bold">Response body</div>
+        <pre class="p-2 bg-light border rounded" style="max-height: 420px; overflow:auto;"><code>@Model.HttpResponseBody</code></pre>
+    </div>
+}
+
