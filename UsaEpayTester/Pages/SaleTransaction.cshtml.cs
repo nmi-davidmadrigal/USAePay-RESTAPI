@@ -75,6 +75,15 @@ public class SaleTransactionModel : PageModel
             // Validate and normalize the JSON before sending.
             // If you want to keep it exactly as typed, change RequestJsonSent to RequestJson.Trim().
             var requestToken = JToken.Parse(RequestJson);
+
+            // USAePay REST expects nested objects like:
+            //   { "creditcard": { "number": "...", "expiration": "...", "cvc": "..." } }
+            // This app originally shipped with a "flattened" sample payload; normalize it for convenience.
+            if (requestToken is JObject requestObject)
+            {
+                NormalizeCreditCardShape(requestObject);
+            }
+
             RequestJsonSent = requestToken.ToString(Formatting.Indented);
 
             // Build auth header (same algorithm as the Auth page).
@@ -125,6 +134,71 @@ public class SaleTransactionModel : PageModel
         }
     }
 
+    private static void NormalizeCreditCardShape(JObject request)
+    {
+        // If "creditcard" is already an object, do nothing.
+        // If it's a string (card number), move related top-level fields into a nested object to match the REST docs.
+        if (request["creditcard"] is not JValue creditCardValue || creditCardValue.Type != JTokenType.String)
+        {
+            return;
+        }
+
+        var number = (string?)creditCardValue;
+        if (string.IsNullOrWhiteSpace(number))
+        {
+            return;
+        }
+
+        var creditcard = new JObject
+        {
+            ["number"] = number.Trim()
+        };
+
+        // Common "flattened" field names (older examples / UI habits) -> REST doc keys.
+        if (request.TryGetValue("cardholder", StringComparison.OrdinalIgnoreCase, out var cardholder))
+        {
+            creditcard["cardholder"] = cardholder;
+            request.Remove("cardholder");
+        }
+
+        if (request.TryGetValue("exp", StringComparison.OrdinalIgnoreCase, out var exp))
+        {
+            creditcard["expiration"] = exp;
+            request.Remove("exp");
+        }
+        else if (request.TryGetValue("expiration", StringComparison.OrdinalIgnoreCase, out var expiration))
+        {
+            creditcard["expiration"] = expiration;
+            request.Remove("expiration");
+        }
+
+        if (request.TryGetValue("cvv2", StringComparison.OrdinalIgnoreCase, out var cvv2))
+        {
+            creditcard["cvc"] = cvv2;
+            request.Remove("cvv2");
+        }
+        else if (request.TryGetValue("cvc", StringComparison.OrdinalIgnoreCase, out var cvc))
+        {
+            creditcard["cvc"] = cvc;
+            request.Remove("cvc");
+        }
+
+        // These are commonly entered as "street"/"zip" but REST expects "avs_street"/"avs_zip" inside creditcard.
+        if (request.TryGetValue("street", StringComparison.OrdinalIgnoreCase, out var street))
+        {
+            creditcard["avs_street"] = street;
+            request.Remove("street");
+        }
+
+        if (request.TryGetValue("zip", StringComparison.OrdinalIgnoreCase, out var zip))
+        {
+            creditcard["avs_zip"] = zip;
+            request.Remove("zip");
+        }
+
+        request["creditcard"] = creditcard;
+    }
+
     private const string DefaultRequestJson =
         """
         {
@@ -132,12 +206,14 @@ public class SaleTransactionModel : PageModel
           "amount": "1.00",
           "invoice": "INV-1001",
           "description": "Test sale via UsaEpayTester",
-          "creditcard": "4111111111111111",
-          "exp": "1228",
-          "cvv2": "999",
-          "cardholder": "Test Customer",
-          "street": "1 Main St",
-          "zip": "90210"
+          "creditcard": {
+            "cardholder": "Test Customer",
+            "number": "4111111111111111",
+            "expiration": "1228",
+            "cvc": "999",
+            "avs_street": "1 Main St",
+            "avs_zip": "90210"
+          }
         }
         """;
 }
